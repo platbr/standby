@@ -11,7 +11,7 @@ require 'standby/active_record/log_subscriber'
 
 module Standby
   class << self
-    attr_accessor :disabled
+    attr_accessor :disabled, :check_rails_cache
 
     def standby_connections
       @standby_connections ||= {}
@@ -24,6 +24,13 @@ module Standby
 
     def on_primary(&block)
       Base.new(:primary).run &block
+    end
+
+    def global_disabled?
+      return false unless check_rails_cache
+      stored_value = Rails.cache.read('standby_enabled')
+      return false if stored_value == true
+      true
     end
   end
 end

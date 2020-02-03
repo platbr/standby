@@ -13,6 +13,8 @@ module Standby
     def decide_with(target)
       if Standby.disabled || target == :primary
         :primary
+      elsif Standby.global_disabled?
+        :primary
       elsif inside_transaction?
         raise Standby::Error.new('on_standby cannot be used inside transaction block!')
       elsif target == :null_state
